@@ -177,17 +177,9 @@
         }
 
         @keyframes pulse {
-            0% {
-                transform: scale(1);
-            }
-
-            50% {
-                transform: scale(1.1);
-            }
-
-            100% {
-                transform: scale(1);
-            }
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
         }
 
         .profile-dropdown {
@@ -906,7 +898,6 @@
             .action-description {
                 font-size: 0.75rem;
                 display: none;
-                /* Hide description on mobile to save space */
             }
 
             .logo-container {
@@ -1092,10 +1083,6 @@
                     <i class="fas fa-home"></i>
                     <span>Dashboard</span>
                 </a>
-                <!--                <a href="#" class="menu-item">-->
-                <!--                    <i class="fas fa-plus-circle"></i>-->
-                <!--                    <span>Add Collection</span>-->
-                <!--                </a>-->
                 <a href="{% url 'waste_collector:waste_collect_list' %}" class="menu-item">
                     <i class="fas fa-list"></i>
                     <span>View Records</span>
@@ -1165,7 +1152,6 @@
     <!-- Main Content -->
     {% block content %}
 
-
     <div class="main-content" id="mainContent">
         <!-- Welcome Section -->
         <div class="welcome-section">
@@ -1180,8 +1166,7 @@
             {% endif %}
         </div>
 
-
-<!-- Chart Section -->
+        <!-- Chart Section -->
         <div class="chart-container">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h4 class="section-title mb-0">
@@ -1197,7 +1182,6 @@
                 <canvas id="impactChart"></canvas>
             </div>
         </div>
-
 
         <!-- Monthly Impact Graphs Section -->
         <div class="analytics-section">
@@ -1345,27 +1329,8 @@
                         <div class="action-description">Orders & requests</div>
                     </a>
                 </div>
-                <!--<div class="col-lg col-md-4 col-6">-->
-                <!--    <div class="action-card reports" data-bs-toggle="modal" data-bs-target="#reportModal">-->
-                <!--        <div class="action-icon">-->
-                <!--            <i class="fas fa-file-export"></i>-->
-                <!--        </div>-->
-                <!--        <div class="action-title">Reports</div>-->
-                <!--        <div class="action-description">Export CSV data</div>-->
-                <!--    </div>-->
-                </div>
-                <!--<div class="col-lg col-md-4 col-6 mx-auto">-->
-                <!--    <a href="{% url 'waste_collector:billing_dashboard' %}" class="action-card analytics">-->
-                <!--        <div class="action-icon">-->
-                <!--            <i class="fas fa-chart-line"></i>-->
-                <!--        </div>-->
-                <!--        <div class="action-title">Analytics</div>-->
-                <!--        <div class="action-description">View performance</div>-->
-                <!--    </a>-->
-                <!--</div>-->
             </div>
         </div>
-
 
         <!-- Recent Activity Section -->
         <div class="table-container">
@@ -1516,16 +1481,10 @@
                             </div>
                         </div>
 
-                        <input type="hidden" name="format" value="csv">
-
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-success p-3 fw-bold"
-                                style="border-radius: 12px; background: linear-gradient(135deg, #2e8b57 0%, #1c6d42 100%);">
-                                <i class="fas fa-download me-2"></i> Download CSV Report
-                            </button>
-                            <button type="button" class="btn btn-light p-3 fw-600" data-bs-dismiss="modal"
-                                style="border-radius: 12px;">
-                                Cancel
+                        <div class="d-flex justify-content-end gap-2">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-download me-2"></i> Generate Report
                             </button>
                         </div>
                     </form>
@@ -1535,261 +1494,53 @@
     </div>
     {% endblock %}
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Real data from backend
+        const totalCollections = parseInt("{{ total_collections|default:'0' }}") || 0;
+        const todayCollections = parseInt("{{ today_collections|default:'0' }}") || 0;
+        const totalWeight = parseFloat("{{ total_weight|default:'0' }}") || 0;
+        const totalRevenue = parseFloat("{{ total_revenue|default:'0' }}") || 0;
+
         // Sidebar functionality
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebarOverlay');
             const mainContent = document.getElementById('mainContent');
+            const overlay = document.getElementById('sidebarOverlay');
 
             sidebar.classList.toggle('active');
+            mainContent.classList.toggle('sidebar-open');
             overlay.classList.toggle('active');
-
-            if (window.innerWidth > 992) {
-                mainContent.classList.toggle('sidebar-open');
-            }
         }
 
         function closeSidebar() {
-            document.getElementById('sidebar').classList.remove('active');
-            document.getElementById('sidebarOverlay').classList.remove('active');
-            document.getElementById('mainContent').classList.remove('sidebar-open');
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const overlay = document.getElementById('sidebarOverlay');
+
+            sidebar.classList.remove('active');
+            mainContent.classList.remove('sidebar-open');
+            overlay.classList.remove('active');
         }
 
-        // Global search functionality
-        document.getElementById('globalSearch').addEventListener('input', function (e) {
-            const searchTerm = e.target.value.toLowerCase();
-            // Implement search logic here
-            console.log('Searching for:', searchTerm);
+        // Initialize charts when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCharts();
+            updateMetrics();
         });
 
-        // Notification functionality
-        function toggleNotifications() {
-            // Implement notification dropdown/modal here
-            alert('You have 3 new notifications:\n\n• New waste collection assigned\n• Route optimization completed\n• Monthly report available');
-        }
-
-
-
-        // Quick action functions: Handle report modal date pre-filling
-        document.getElementById('reportModal').addEventListener('show.bs.modal', function () {
-            const now = new Date();
-            const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-            const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-
-            const formatDate = (date) => {
-                let d = new Date(date),
-                    month = '' + (d.getMonth() + 1),
-                    day = '' + d.getDate(),
-                    year = d.getFullYear();
-
-                if (month.length < 2) month = '0' + month;
-                if (day.length < 2) day = '0' + day;
-
-                return [year, month, day].join('-');
-            }
-
-            this.querySelector('input[name="start_date"]').value = formatDate(firstDay);
-            this.querySelector('input[name="end_date"]').value = formatDate(lastDay);
-        });
-
-        function refreshData(e) {
-            // Add loading animation
-            const refreshBtn = (e && e.target) ? e.target.closest('button') : null;
-            if (!refreshBtn) return;
-
-            const originalContent = refreshBtn.innerHTML;
-            refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
-            refreshBtn.disabled = true;
-
-            // Simulate data refresh
-            setTimeout(() => {
-                refreshBtn.innerHTML = originalContent;
-                refreshBtn.disabled = false;
-                // You can add actual data refresh logic here
-                console.log('Data refreshed');
-                window.location.reload(); // Actually refresh the page
-            }, 1500);
-        }
-
-        function logout() {
-            if (confirm('Are you sure you want to logout from SuchiGo?')) {
-                window.location.href = "{% url 'authentication:logout' %}";
-            }
-        }
-
-        // Handle responsive behavior
-        window.addEventListener('resize', function () {
-            if (window.innerWidth <= 992) {
-                document.getElementById('mainContent').classList.remove('sidebar-open');
-            }
-        });
-
-        // Initialize tooltips
-        document.addEventListener('DOMContentLoaded', function () {
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl);
-            });
-        });
-
-        // Add smooth scrolling for better UX
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
-        });
-
-        // Initialize Analytics Charts
-        document.addEventListener('DOMContentLoaded', function () {
-            // Performance Chart
-            const performanceCanvas = document.getElementById('performanceChart');
-            if (performanceCanvas) {
-                const ctx = performanceCanvas.getContext('2d');
-
-                // Sample data for demonstration
-                const chartDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-                const chartCounts = [12, 19, 15, 25, 22, 30, 28];
-                const chartWeights = [45, 52, 38, 65, 48, 72, 58];
-
-                new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: chartDays,
-                        datasets: [{
-                            label: 'Collections',
-                            data: chartCounts,
-                            backgroundColor: 'rgba(46, 139, 87, 0.8)',
-                            borderColor: '#2e8b57',
-                            borderWidth: 1,
-                            borderRadius: 5,
-                            yAxisID: 'y'
-                        }, {
-                            label: 'Weight (KG)',
-                            data: chartWeights,
-                            type: 'line',
-                            borderColor: '#22d3ee',
-                            backgroundColor: 'rgba(34, 211, 238, 0.1)',
-                            borderWidth: 2,
-                            tension: 0.4,
-                            pointRadius: 4,
-                            pointBackgroundColor: '#22d3ee',
-                            yAxisID: 'y1'
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        interaction: {
-                            mode: 'index',
-                            intersect: false,
-                        },
-                        scales: {
-                            y: {
-                                type: 'linear',
-                                display: true,
-                                position: 'left',
-                                title: {
-                                    display: true,
-                                    text: 'No. of Collections'
-                                },
-                                beginAtZero: true,
-                                grid: {
-                                    color: 'rgba(0, 0, 0, 0.05)'
-                                }
-                            },
-                            y1: {
-                                type: 'linear',
-                                display: true,
-                                position: 'right',
-                                title: {
-                                    display: true,
-                                    text: 'Weight (KG)'
-                                },
-                                beginAtZero: true,
-                                grid: {
-                                    drawOnChartArea: false
-                                }
-                            },
-                            x: {
-                                grid: {
-                                    display: false
-                                }
-                            }
-                        },
-                        plugins: {
-                            legend: {
-                                position: 'top',
-                                labels: {
-                                    usePointStyle: true,
-                                    padding: 20
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-
-            // Waste Type Distribution Chart
-            const wasteTypeCanvas = document.getElementById('wasteTypeChart');
-            if (wasteTypeCanvas) {
-                const ctx = wasteTypeCanvas.getContext('2d');
-
-                new Chart(ctx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['Organic Waste', 'Plastic', 'Paper', 'Metal', 'Glass', 'E-Waste'],
-                        datasets: [{
-                            data: [35, 25, 20, 10, 7, 3],
-                            backgroundColor: [
-                                '#4ade80',
-                                '#22d3ee',
-                                '#2e8b57',
-                                '#10b981',
-                                '#06b6d4',
-                                '#0891b2'
-                            ],
-                            borderWidth: 2,
-                            borderColor: '#ffffff'
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: {
-                                    padding: 15,
-                                    usePointStyle: true
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-
+        function initializeCharts() {
             // Impact Chart - This Month's Impact
             const impactCanvas = document.getElementById('impactChart');
             if (impactCanvas) {
                 const ctx = impactCanvas.getContext('2d');
 
-                // Extract local body data from the page - this will be populated by Django
+                // Extract local body data from the page
                 const localBodyData = {
                     names: [],
                     weights: [],
                     revenues: []
                 };
 
-                // Process recent activities from the DOM or use fallback data
                 const activityElements = document.querySelectorAll('[data-localbody]');
                 if (activityElements.length > 0) {
                     const bodyMap = {};
@@ -1820,10 +1571,7 @@
                 // Populate local body dropdown
                 const localbodyFilter = document.getElementById('localbodyFilter');
                 if (localbodyFilter && localBodyData.names.length > 0) {
-                    // Clear existing options except "All Local Bodies"
                     localbodyFilter.innerHTML = '<option value="all">All Local Bodies</option>';
-
-                    // Add each local body as an option
                     localBodyData.names.forEach(name => {
                         if (name !== 'No Data Available') {
                             const option = document.createElement('option');
@@ -1839,12 +1587,10 @@
                     let chartLabels, chartWeights, chartRevenues;
 
                     if (selectedLocalBody === 'all') {
-                        // Show all local bodies
                         chartLabels = localBodyData.names;
                         chartWeights = localBodyData.weights;
                         chartRevenues = localBodyData.revenues;
                     } else {
-                        // Show only selected local body
                         const index = localBodyData.names.indexOf(selectedLocalBody);
                         if (index !== -1) {
                             chartLabels = [selectedLocalBody];
@@ -1857,7 +1603,6 @@
                         }
                     }
 
-                    // Destroy existing chart if it exists to prevent duplicates
                     if (window.impactChartInstance) {
                         window.impactChartInstance.destroy();
                     }
@@ -1932,10 +1677,8 @@
                     });
                 }
 
-                // Initialize chart with all data
                 updateChart();
 
-                // Add event listener for dropdown change
                 if (localbodyFilter) {
                     localbodyFilter.addEventListener('change', function(e) {
                         updateChart(e.target.value);
@@ -1943,74 +1686,21 @@
                 }
             }
 
-            // Calculate and display metrics
-            updateAnalyticsMetrics();
-        });
-
-        function updateAnalyticsMetrics() {
-            // Sample calculations - replace with actual data
-            const totalCollections = parseInt("{{ total_collections|default:'0' }}") || 150;
-            const totalWeight = parseFloat("{{ total_weight|default:'0' }}") || 850;
-            const totalRevenue = parseFloat("{{ total_revenue|default:'0' }}") || 12500;
-
-            // Calculate averages
-            const avgDaily = (totalCollections / 30).toFixed(1);
-            const avgWeight = (totalWeight / totalCollections).toFixed(1);
-            const avgRevenue = (totalRevenue / totalCollections).toFixed(0);
-
-            // Update display
-            document.getElementById('avgDailyCollections').textContent = avgDaily;
-            document.getElementById('avgWeightPerCollection').textContent = avgWeight + ' KG';
-            document.getElementById('avgRevenuePerCollection').textContent = '₹' + avgRevenue;
-        }
-
-        // Period filter functionality
-        document.getElementById('periodFilter')?.addEventListener('change', function(e) {
-            const period = e.target.value;
-            // Reload page with new period
-            window.location.href = "{% url 'waste_collector:waste_collector_dashboard' %}?period=" + period;
-        });
-
-        // Initialize Monthly Charts Function
-        function initializeMonthlyCharts() {
-            // Generate sample monthly data
-            function generateMonthlyData(months, baseValue, variance) {
-                const data = [];
-                for (let i = 0; i < months; i++) {
-                    data.push(baseValue + (Math.random() - 0.5) * variance);
-                }
-                return data;
-            }
-
-            function getMonthLabels(months) {
-                const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-                const currentMonth = new Date().getMonth();
-                const labels = [];
-                for (let i = months - 1; i >= 0; i--) {
-                    const monthIndex = (currentMonth - i + 12) % 12;
-                    labels.push(monthNames[monthIndex]);
-                }
-                return labels;
-            }
-
-            // Monthly Collections Trend - Line Chart
+            // Monthly Collections Chart
             const collectionsCanvas = document.getElementById('monthlyCollectionsChart');
             if (collectionsCanvas) {
                 const ctx = collectionsCanvas.getContext('2d');
+                
+                // Generate realistic monthly data based on actual totals
                 const months = 6;
                 const labels = getMonthLabels(months);
-                const collectionsData = generateMonthlyData(months, 45, 20);
+                const collectionsData = generateMonthlyDistribution(totalCollections, months);
+                const growthPercentage = collectionsData.length > 1 ? 
+                    ((collectionsData[collectionsData.length - 1] - collectionsData[0]) / Math.max(collectionsData[0], 1) * 100).toFixed(1) : 0;
 
-                // Calculate total and growth
-                const totalCollections = collectionsData.reduce((sum, val) => sum + val, 0);
-                const growthPercentage = ((collectionsData[collectionsData.length - 1] - collectionsData[0]) / collectionsData[0] * 100).toFixed(1);
-
-                // Calculate today's estimated weight (average weight per collection * today's collections)
-                const todayWeightEstimate = Math.round(collectionsData[collectionsData.length - 1] * (Math.random() * 15 + 10));
-
-                // Update total value display
-                document.getElementById('totalCollectionsValue').textContent = Math.round(totalCollections);
-                document.getElementById('todayWeightValue').textContent = todayWeightEstimate + ' KG';
+                // Update displays
+                document.getElementById('totalCollectionsValue').textContent = totalCollections;
+                document.getElementById('todayWeightValue').textContent = Math.round(totalWeight) + ' KG';
                 document.getElementById('collectionsGrowth').textContent = (growthPercentage > 0 ? '+' : '') + growthPercentage + '%';
                 document.getElementById('collectionsGrowth').className = 'badge ' + (growthPercentage > 0 ? 'bg-success' : 'bg-danger');
 
@@ -2077,19 +1767,18 @@
                 });
             }
 
-            // Monthly Weight Collection - Bar Chart
+            // Monthly Weight Chart
             const weightCanvas = document.getElementById('monthlyWeightChart');
             if (weightCanvas) {
                 const ctx = weightCanvas.getContext('2d');
+                
                 const months = 6;
                 const labels = getMonthLabels(months);
-                const weightData = generateMonthlyData(months, 120, 60);
+                const weightData = generateMonthlyDistribution(totalWeight, months);
+                const growthPercentage = weightData.length > 1 ? 
+                    ((weightData[weightData.length - 1] - weightData[0]) / Math.max(weightData[0], 1) * 100).toFixed(1) : 0;
 
-                // Calculate total and growth
-                const totalWeight = weightData.reduce((sum, val) => sum + val, 0);
-                const growthPercentage = ((weightData[weightData.length - 1] - weightData[0]) / weightData[0] * 100).toFixed(1);
-
-                // Update total value display
+                // Update displays
                 document.getElementById('totalWeightValue').textContent = Math.round(totalWeight) + ' KG';
                 document.getElementById('weightGrowth').textContent = (growthPercentage > 0 ? '+' : '') + growthPercentage + '%';
                 document.getElementById('weightGrowth').className = 'badge ' + (growthPercentage > 0 ? 'bg-success' : 'bg-danger');
@@ -2152,246 +1841,17 @@
                 });
             }
 
-            // Monthly Revenue - Area Chart
-            const revenueCanvas = document.getElementById('monthlyRevenueChart');
-            if (revenueCanvas) {
-                const ctx = revenueCanvas.getContext('2d');
-                const months = 6;
-                const labels = getMonthLabels(months);
-                const revenueData = generateMonthlyData(months, 2500, 1000);
+            // Today's Collections Chart
+            const todayCanvas = document.getElementById('todayCollectionsChart');
+            if (todayCanvas) {
+                const ctx = todayCanvas.getContext('2d');
 
-                // Calculate total and growth
-                const totalRevenue = revenueData.reduce((sum, val) => sum + val, 0);
-                const growthPercentage = ((revenueData[revenueData.length - 1] - revenueData[0]) / revenueData[0] * 100).toFixed(1);
+                // Set today's date
+                const today = new Date();
+                const todayString = today.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                document.getElementById('todayDate').textContent = todayString;
 
-                // Update total value display
-                document.getElementById('totalRevenueValue').textContent = '₹' + Math.round(totalRevenue).toLocaleString();
-                document.getElementById('revenueGrowth').textContent = (growthPercentage > 0 ? '+' : '') + growthPercentage + '%';
-                document.getElementById('revenueGrowth').className = 'badge ' + (growthPercentage > 0 ? 'bg-success' : 'bg-danger');
-
-                new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Revenue (₹)',
-                            data: revenueData,
-                            borderColor: '#f59e0b',
-                            backgroundColor: 'rgba(245, 158, 11, 0.2)',
-                            borderWidth: 3,
-                            fill: true,
-                            tension: 0.3,
-                            pointBackgroundColor: '#f59e0b',
-                            pointBorderColor: '#fff',
-                            pointBorderWidth: 2,
-                            pointRadius: 5,
-                            pointHoverRadius: 7
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: true,
-                                position: 'top',
-                                labels: {
-                                    usePointStyle: true,
-                                    padding: 15
-                                }
-                            },
-                            tooltip: {
-                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                                padding: 12,
-                                cornerRadius: 8,
-                                callbacks: {
-                                    label: function(context) {
-                                        return 'Revenue: ₹' + Math.round(context.parsed.y).toLocaleString();
-                                    }
-                                }
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                grid: {
-                                    color: 'rgba(0, 0, 0, 0.05)'
-                                },
-                                title: {
-                                    display: true,
-                                    text: 'Revenue (₹)'
-                                },
-                                ticks: {
-                                    callback: function(value) {
-                                        return '₹' + value.toLocaleString();
-                                    }
-                                }
-                            },
-                            x: {
-                                grid: {
-                                    display: false
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-
-            // Combined Monthly Overview - Poly Line Chart
-            const overviewCanvas = document.getElementById('monthlyOverviewChart');
-            if (overviewCanvas) {
-                const ctx = overviewCanvas.getContext('2d');
-                const months = 6;
-                const labels = getMonthLabels(months);
-                const collectionsData = generateMonthlyData(months, 45, 20);
-                const weightData = generateMonthlyData(months, 120, 60);
-                const revenueData = generateMonthlyData(months, 2500, 1000);
-
-                new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: [
-                            {
-                                label: 'Collections',
-                                data: collectionsData,
-                                borderColor: '#3b82f6',
-                                backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                                borderWidth: 3,
-                                fill: false,
-                                tension: 0.4,
-                                pointBackgroundColor: '#3b82f6',
-                                pointBorderColor: '#fff',
-                                pointBorderWidth: 2,
-                                pointRadius: 5,
-                                yAxisID: 'y'
-                            },
-                            {
-                                label: 'Weight (KG)',
-                                data: weightData,
-                                borderColor: '#22c55e',
-                                backgroundColor: 'rgba(34, 197, 94, 0.1)',
-                                borderWidth: 3,
-                                fill: false,
-                                tension: 0.4,
-                                pointBackgroundColor: '#22c55e',
-                                pointBorderColor: '#fff',
-                                pointBorderWidth: 2,
-                                pointRadius: 5,
-                                yAxisID: 'y1'
-                            },
-                            {
-                                label: 'Revenue (₹)',
-                                data: revenueData,
-                                borderColor: '#f59e0b',
-                                backgroundColor: 'rgba(245, 158, 11, 0.1)',
-                                borderWidth: 3,
-                                fill: false,
-                                tension: 0.4,
-                                pointBackgroundColor: '#f59e0b',
-                                pointBorderColor: '#fff',
-                                pointBorderWidth: 2,
-                                pointRadius: 5,
-                                yAxisID: 'y2'
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        interaction: {
-                            mode: 'index',
-                            intersect: false,
-                        },
-                        plugins: {
-                            legend: {
-                                display: true,
-                                position: 'top',
-                                labels: {
-                                    usePointStyle: true,
-                                    padding: 20
-                                }
-                            },
-                            tooltip: {
-                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                                padding: 12,
-                                cornerRadius: 8
-                            }
-                        },
-                        scales: {
-                            y: {
-                                type: 'linear',
-                                display: true,
-                                position: 'left',
-                                title: {
-                                    display: true,
-                                    text: 'Collections'
-                                },
-                                beginAtZero: true,
-                                grid: {
-                                    color: 'rgba(0, 0, 0, 0.05)'
-                                }
-                            },
-                            y1: {
-                                type: 'linear',
-                                display: true,
-                                position: 'right',
-                                title: {
-                                    display: true,
-                                    text: 'Weight (KG)'
-                                },
-                                beginAtZero: true,
-                                grid: {
-                                    drawOnChartArea: false
-                                }
-                            },
-                            y2: {
-                                type: 'linear',
-                                display: false,
-                                title: {
-                                    display: true,
-                                    text: 'Revenue (₹)'
-                                },
-                                beginAtZero: true,
-                                grid: {
-                                    drawOnChartArea: false
-                                }
-                            },
-                            x: {
-                                grid: {
-                                    display: false
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-
-            // Add event listeners for period filters
-            ['collectionsPeriod', 'weightPeriod', 'revenuePeriod', 'overviewPeriod'].forEach(id => {
-                const element = document.getElementById(id);
-                if (element) {
-                    element.addEventListener('change', function() {
-                        // Reinitialize charts with new period
-                        initializeMonthlyCharts();
-                    });
-                }
-            });
-        }
-
-        // Initialize Today's Charts Function
-        function initializeTodayCharts() {
-            // Set today's date
-            const today = new Date();
-            const todayString = today.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-            document.getElementById('todayDate').textContent = todayString;
-
-            // Today's Collections - Real-time Line Chart
-            const todayCollectionsCanvas = document.getElementById('todayCollectionsChart');
-            if (todayCollectionsCanvas) {
-                const ctx = todayCollectionsCanvas.getContext('2d');
-
-                // Generate hourly data for today (8 AM to 8 PM)
+                // Generate realistic hourly data for today based on actual collections
                 const hours = [];
                 const collectionsData = [];
                 const currentHour = new Date().getHours();
@@ -2399,16 +1859,26 @@
                 for (let i = 8; i <= 20; i++) {
                     if (i <= currentHour) {
                         hours.push(i + ':00');
-                        // Simulate collections data with some randomness
-                        const baseCollections = Math.floor(Math.random() * 5) + 2;
-                        collectionsData.push(baseCollections);
+                        if (todayCollections > 0) {
+                            const hourProgress = (i - 8) / (currentHour - 8 || 1);
+                            const baseCollections = Math.floor(todayCollections * hourProgress / 12);
+                            const variance = Math.floor(Math.random() * 2) - 1;
+                            collectionsData.push(Math.max(0, baseCollections + variance));
+                        } else {
+                            collectionsData.push(0);
+                        }
                     }
                 }
 
-                const todayTotal = collectionsData.reduce((sum, val) => sum + val, 0);
-
-                // Update total value display
-                document.getElementById('todayCollectionsValue').textContent = todayTotal;
+                // Update displays
+                document.getElementById('todayCollectionsValue').textContent = todayCollections;
+                
+                const weightElement = document.getElementById('todayCollectionsWeight');
+                if (weightElement && totalCollections > 0) {
+                    const avgWeightPerCollection = totalWeight / totalCollections;
+                    const todayWeightEstimate = Math.round(todayCollections * avgWeightPerCollection);
+                    weightElement.textContent = todayWeightEstimate + ' KG';
+                }
 
                 // Update status based on current time
                 if (currentHour < 12) {
@@ -2479,108 +1949,78 @@
                     }
                 });
             }
+        }
 
-            // Today's Performance - Mixed Doughnut/Bar Chart
-            const todayPerformanceCanvas = document.getElementById('todayPerformanceChart');
-            if (todayPerformanceCanvas) {
-                const ctx = todayPerformanceCanvas.getContext('2d');
+        function getMonthLabels(months) {
+            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const currentMonth = new Date().getMonth();
+            const labels = [];
+            for (let i = months - 1; i >= 0; i--) {
+                const monthIndex = (currentMonth - i + 12) % 12;
+                labels.push(monthNames[monthIndex]);
+            }
+            return labels;
+        }
 
-                // Performance data
-                const performanceData = {
-                    completed: Math.floor(Math.random() * 15) + 10,
-                    pending: Math.floor(Math.random() * 5) + 2,
-                    cancelled: Math.floor(Math.random() * 2) + 1
-                };
-
-                const total = performanceData.completed + performanceData.pending + performanceData.cancelled;
-                const efficiencyRate = Math.round((performanceData.completed / total) * 100);
-
-                // Update performance display
-                document.getElementById('todayPerformanceValue').textContent = efficiencyRate + '%';
-
-                // Update trend based on efficiency
-                if (efficiencyRate >= 80) {
-                    document.getElementById('todayPerformanceTrend').textContent = '↑ Excellent';
-                    document.getElementById('todayPerformanceTrend').className = 'badge bg-success';
-                } else if (efficiencyRate >= 60) {
-                    document.getElementById('todayPerformanceTrend').textContent = '→ Good';
-                    document.getElementById('todayPerformanceTrend').className = 'badge bg-info';
+        function generateMonthlyDistribution(totalValue, months, variance = 0.3) {
+            const data = [];
+            let remaining = totalValue;
+            
+            for (let i = 0; i < months; i++) {
+                if (i === months - 1) {
+                    data.push(Math.max(0, remaining));
                 } else {
-                    document.getElementById('todayPerformanceTrend').textContent = '↓ Needs Improvement';
-                    document.getElementById('todayPerformanceTrend').className = 'badge bg-warning';
+                    const avgValue = totalValue / months;
+                    const monthValue = avgValue * (1 + (Math.random() - 0.5) * variance);
+                    data.push(Math.max(0, Math.min(monthValue, remaining * 0.6)));
+                    remaining -= data[i];
                 }
+            }
+            return data;
+        }
 
-                new Chart(ctx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['Completed', 'Pending', 'Cancelled'],
-                        datasets: [{
-                            data: [performanceData.completed, performanceData.pending, performanceData.cancelled],
-                            backgroundColor: [
-                                'rgba(34, 197, 94, 0.8)',
-                                'rgba(245, 158, 11, 0.8)',
-                                'rgba(239, 68, 68, 0.8)'
-                            ],
-                            borderColor: [
-                                'rgba(34, 197, 94, 1)',
-                                'rgba(245, 158, 11, 1)',
-                                'rgba(239, 68, 68, 1)'
-                            ],
-                            borderWidth: 2
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: true,
-                                position: 'bottom',
-                                labels: {
-                                    padding: 15,
-                                    usePointStyle: true
-                                }
-                            },
-                            tooltip: {
-                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                                padding: 12,
-                                cornerRadius: 8,
-                                callbacks: {
-                                    label: function(context) {
-                                        const label = context.label || '';
-                                        const value = context.parsed || 0;
-                                        const percentage = Math.round((value / total) * 100);
-                                        return label + ': ' + value + ' (' + percentage + '%)';
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
+        function updateMetrics() {
+            // Update analytics metrics
+            const avgDaily = (totalCollections / 30).toFixed(1);
+            const avgWeight = totalCollections > 0 ? (totalWeight / totalCollections).toFixed(1) : 0;
+            const avgRevenue = totalCollections > 0 ? (totalRevenue / totalCollections).toFixed(0) : 0;
+
+            const avgDailyElement = document.getElementById('avgDailyCollections');
+            const avgWeightElement = document.getElementById('avgWeightPerCollection');
+            const avgRevenueElement = document.getElementById('avgRevenuePerCollection');
+
+            if (avgDailyElement) avgDailyElement.textContent = avgDaily;
+            if (avgWeightElement) avgWeightElement.textContent = avgWeight + ' KG';
+            if (avgRevenueElement) avgRevenueElement.textContent = '₹' + avgRevenue;
+        }
+
+        // Utility functions
+        function refreshData(event) {
+            event.preventDefault();
+            window.location.reload();
+        }
+
+        function generateReports() {
+            // Show report modal if it exists
+            const modal = document.getElementById('reportModal');
+            if (modal) {
+                const bsModal = new bootstrap.Modal(modal);
+                bsModal.show();
             }
         }
 
-        // Initialize Monthly Charts when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeMonthlyCharts();
-            initializeTodayCharts();
-        });
+        function logout() {
+            window.location.href = "{% url 'authentication:logout' %}";
+        }
 
-        // Add keyboard shortcuts
+        // Keyboard shortcuts
         document.addEventListener('keydown', function (e) {
-            // Ctrl/Cmd + K to focus search
             if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
                 e.preventDefault();
                 const searchInput = document.getElementById('globalSearch');
-                if (searchInput) {
-                    searchInput.focus();
-                }
+                if (searchInput) searchInput.focus();
             }
-
-            // Escape to close sidebar
-            if (e.key === 'Escape') {
-                closeSidebar();
-            }
+            if (e.key === 'Escape') closeSidebar();
         });
     </script>
 </body>
