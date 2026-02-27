@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collected Waste Data - SuchiGo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e8f5e8 0%, #e1f3f8 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4CAF50 0%, #2196F3 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 15px 15px 0 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            background: white;
+            border-radius: 0 0 15px 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            border-left: 5px solid #4CAF50;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2196F3;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .table-container {
+            padding: 25px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        table thead {
+            background: linear-gradient(135deg, #4CAF50 0%, #2196F3 100%);
+            color: white;
+        }
+
+        table th {
+            padding: 15px 12px;
+            text-align: left;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.9rem;
+            border-bottom: 2px solid #2196F3;
+        }
+
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #e9ecef;
+            color: #333;
+            font-size: 0.95rem;
+        }
+
+        table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        table tr:hover {
+            background-color: #e3f2fd;
+            transform: scale(1.01);
+            transition: all 0.2s ease;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 50px;
+            color: #6c757d;
+            font-size: 1.2rem;
+        }
+
+        .no-data i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            display: block;
+            color: #ced4da;
+        }
+
+        .amount-cell {
+            font-weight: 600;
+            color: #4CAF50;
+        }
+
+        .weight-cell {
+            font-weight: 600;
+            color: #2196F3;
+        }
+
+        .time-cell {
+            color: #6c757d;
+            font-size: 0.85rem;
+        }
+
+        .photo-cell {
+            text-align: center;
+        }
+
+        .photo-cell img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .photo-cell img:hover {
+            transform: scale(2);
+            z-index: 1000;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .no-photo {
+            color: #ced4da;
+            font-style: italic;
+            font-size: 0.85rem;
+        }
+
+        .actions {
+            padding: 25px;
+            text-align: center;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 25px;
+            margin: 0 10px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4CAF50 0%, #2196F3 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(108, 117, 125, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .stats-container {
+                grid-template-columns: 1fr 1fr;
+                gap: 15px;
+                padding: 20px;
+            }
+            
+            table {
+                font-size: 0.85rem;
+            }
+            
+            table th, table td {
+                padding: 8px 5px;
+            }
+            
+            .stat-number {
+                font-size: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>♻️ Collected Waste Data</h1>
+            <p>Detailed records of all waste collection activities</p>
+        </div>
+        
+        <div class="content">
+            <!-- Stats Overview -->
+            <div class="stats-container">
+                <div class="stat-card">
+                    <div class="stat-number">{{ all_data|length }}</div>
+                    <div class="stat-label">Total Collections</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ total_weight|floatformat:2 }} KG</div>
+                    <div class="stat-label">Total Weight</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">₹{{ total_amount|floatformat:2 }}</div>
+                    <div class="stat-label">Total Revenue</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ collectors_count }}</div>
+                    <div class="stat-label">Active Collectors</div>
+                </div>
+            </div>
+
+            <!-- Data Table -->
+            <div class="table-container">
+                {% if all_data %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-user"></i> Collector</th>
+                            <th><i class="fas fa-user-friends"></i> Customer</th>
+                            <th><i class="fas fa-landmark"></i> Local Body</th>
+                            <th><i class="fas fa-home"></i> Ward</th>
+                            <th><i class="fas fa-map-marker-alt"></i> Location</th>
+                            <th><i class="fas fa-shopping-bag"></i> Bags</th>
+                            <th><i class="fas fa-building"></i> Building No</th>
+                            <th><i class="fas fa-road"></i> Street Name</th>
+                            <th><i class="fas fa-weight"></i> Weight (KG)</th>
+                            <th><i class="fas fa-rupee-sign"></i> Amount (₹)</th>
+                            <th><i class="fas fa-camera"></i> Photo</th>
+                            <th><i class="fas fa-calendar"></i> Booking Date</th>
+                            <th><i class="fas fa-clock"></i> Collection Time</th>
+                            <th><i class="fas fa-history"></i> Created At</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in all_data %}
+                        <tr>
+                            <td><strong>{{ item.collector.username }}</strong></td>
+                            <td>{{ item.customer.username }}</td>
+                            <td>
+                                {% if item.localbody %}
+                                    {{ item.localbody }}
+                                {% else %}
+                                    <span style="color: #6c757d; font-style: italic;">Not assigned</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ item.ward }}</td>
+                            <td>{{ item.location }}</td>
+                            <td>{{ item.number_of_bags }}</td>
+                            <td>{{ item.building_no }}</td>
+                            <td>{{ item.street_name }}</td>
+                            <td class="weight-cell">{{ item.kg }}</td>
+                            <td class="amount-cell">{{ item.total_amount }}</td>
+                            <td class="photo-cell">
+                                {% if item.photo %}
+                                    <img src="{{ item.photo.url }}" alt="Collection Photo" onclick="showPhoto('{{ item.photo.url }}')">
+                                {% else %}
+                                    <span class="no-photo">No Photo</span>
+                                {% endif %}
+                            </td>
+                            <td class="time-cell">{{ item.booking_date|date:"Y-m-d H:i" }}</td>
+                            <td class="time-cell">
+                                {% if item.collection_time %}
+                                    {{ item.collection_time|time:"H:i" }}
+                                {% else %}
+                                    <span style="color: #6c757d; font-style: italic;">Not recorded</span>
+                                {% endif %}
+                            </td>
+                            <td class="time-cell">{{ item.created_at|date:"Y-m-d H:i" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="no-data">
+                    <i class="fas fa-database"></i>
+                    <p>No waste collection data found</p>
+                    <p style="font-size: 1rem; margin-top: 10px;">Start collecting waste to see data here</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="actions">
+                <a href="{% url 'waste_collector:waste_collect_create' %}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Add New Collection
+                </a>
+                <a href="{% url 'super_admin_dashboard:super_admin_dashboard' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Photo Modal -->
+    <div id="photoModal" style="display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9);">
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); max-width: 90%; max-height: 90%;">
+            <img id="modalImage" style="max-width: 100%; max-height: 100%; border-radius: 10px;">
+            <div style="position: absolute; top: 15px; right: 15px; color: white; font-size: 30px; cursor: pointer; background: rgba(0,0,0,0.5); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;" onclick="closeModal()">
+                ×
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showPhoto(imageSrc) {
+            document.getElementById('modalImage').src = imageSrc;
+            document.getElementById('photoModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('photoModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close modal when clicking outside the image
+        document.getElementById('photoModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && document.getElementById('photoModal').style.display === 'block') {
+                closeModal();
+            }
+        });
+
+        // Add alternating row colors for better readability
+        document.addEventListener('DOMContentLoaded', function() {
+            const rows = document.querySelectorAll('tbody tr');
+            rows.forEach((row, index) => {
+                if (index % 2 === 0) {
+                    row.style.backgroundColor = '#fff';
+                } else {
+                    row.style.backgroundColor = '#f8f9fa';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
