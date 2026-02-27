@@ -6,46 +6,165 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SuchiGo Admin Dashboard</title>
+    {% csrf_token %}
+    <meta name="csrf-token" content="{{ csrf_token }}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        /*.action-buttons {*/
-        /*    display: flex;*/
-        /*    gap: 1rem;*/
-        /*    margin-bottom: 2rem;*/
-        /*    flex-wrap: wrap;*/
-        /*}*/
+        :root {
+            --primary: #4CAF50;
+            --primary-dark: #388E3C;
+            --secondary: #2196F3;
+            --warning: #FF9800;
+            --purple: #9C27B0;
+            --gray: #666;
+            --light: #f8f9fa;
+            --dark: #333;
+        }
 
-        /*.action-button {*/
-        /*    background: linear-gradient(135deg, #4CAF50, #2196F3);*/
-        /*    color: white;*/
-        /*    border: none;*/
-        /*    padding: 0.8rem 1.5rem;*/
-        /*    border-radius: 15px;*/
-        /*    cursor: pointer;*/
-        /*    text-decoration: none;*/
-        /*    font-weight: 500;*/
-        /*    transition: all 0.3s ease;*/
-        /*    display: inline-flex;*/
-        /*    align-items: center;*/
-        /*    gap: 0.5rem;*/
-        /*    box-shadow: 0 4px 15px rgba(0,0,0,0.1);*/
-        /*}*/
+        .reports-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 1.8rem;
+            margin: 2rem 0;
+        }
 
-        /*.action-button:hover {*/
-        /*    transform: translateY(-2px);*/
-        /*    box-shadow: 0 8px 25px rgba(0,0,0,0.2);*/
-        /*}*/
+        .report-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+            overflow: hidden;
+            transition: all 0.28s ease;
+            border: 1px solid rgba(0,0,0,0.04);
+        }
 
-        /*.action-button.secondary {*/
-        /*    background: rgba(108, 117, 125, 0.1);*/
-        /*    color: #6c757d;*/
-        /*    border: 2px solid rgba(108, 117, 125, 0.2);*/
-        /*}*/
+        .report-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.12);
+        }
 
-        /*.action-button.secondary:hover {*/
-        /*    background: rgba(108, 117, 125, 0.15);*/
-        /*    border-color: rgba(108, 117, 125, 0.3);*/
-        /*}*/
+        .report-card-header {
+            padding: 1.4rem 1.8rem;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: linear-gradient(135deg, rgba(240,245,255,0.4), white);
+        }
+
+        .report-card-header i {
+            font-size: 1.6rem;
+        }
+
+        .report-card-header h5 {
+            font-size: 1.25rem;
+            margin: 0;
+            color: var(--dark);
+        }
+
+        .report-card-body {
+            padding: 1.6rem 1.8rem;
+        }
+
+        .report-btn {
+            width: 100%;
+            padding: 1rem 1.4rem;
+            margin-bottom: 0.9rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            background: white;
+            color: var(--dark);
+            font-size: 0.98rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.9rem;
+            text-align: left;
+        }
+
+        .report-btn:hover {
+            background: linear-gradient(135deg, #f0f7ff, #e3f2fd);
+            border-color: var(--secondary);
+            transform: translateX(6px);
+            box-shadow: 0 6px 20px rgba(33,150,243,0.12);
+        }
+
+        .report-btn i {
+            width: 24px;
+            text-align: center;
+            font-size: 1.2rem;
+        }
+
+        .report-history {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+            overflow: hidden;
+            margin-top: 2rem;
+        }
+
+        .report-history-header {
+            padding: 1.5rem 2rem;
+            background: var(--light);
+            border-bottom: 1px solid #eee;
+        }
+
+        .report-history-header h4 {
+            margin: 0;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 1.2rem 1.6rem;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        th {
+            background: var(--light);
+            font-weight: 600;
+            color: #444;
+        }
+
+        .status-badge {
+            padding: 0.4rem 1rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .status-badge[data-status="Completed"]  { background:#e8f5e9; color:#2e7d32; }
+        .status-badge[data-status="Generated"]  { background:#e3f2fd; color:#1565c0; }
+        .status-badge[data-status="Failed"]     { background:#ffebee; color:#c62828; }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.6rem;
+        }
+
+        .action-btn {
+            padding: 0.5rem 0.9rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .btn-download { background:#2196F3; color:white; }
+        .btn-delete   { background:#f44336; color:white; }
+
+        @media (max-width: 768px) {
+            .reports-grid { grid-template-columns: 1fr; }
+        }
 
         * {
             margin: 0;
@@ -686,6 +805,86 @@
             border-color: rgba(108, 117, 125, 0.3);
         }
 
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 2rem;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            color: #333;
+        }
+
+        .close {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #aaa;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
         /* Share Buttons */
         .share-buttons {
             display: flex;
@@ -732,7 +931,7 @@
                         <i class="fas fa-recycle"></i>
                     </div>
                 </div>
-                <div class="logo-text">SuchiG</div>
+                <div class="logo-text">SuchiGo</div>
             </div>
 
 
@@ -899,6 +1098,7 @@
                         <span class="nav-text">Calendar Management</span>
                     </a>
                 </div>
+
             </div>
 
             <!-- Profile Section -->
@@ -964,62 +1164,175 @@
             </a>
         </div>
 
-        <!-- Dynamic Content Area -->
-        <div class="content-area">
-            <div class="content-header">
-                <h2 class="content-title" id="contentTitle">Dashboard Overview</h2>
-            </div>
+        <!-- Order Management Section -->
+        <div class="page-header" style="text-align: center; margin: 2.5rem 0;">
+            <h2 style="font-size: 2.1rem; margin-bottom: 0.6rem; background: linear-gradient(90deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Order Management</h2>
+            <p style="color: var(--gray); font-size: 1.05rem;">Manage and control all waste collection orders</p>
+        </div>
 
-            <div id="contentBody">
-                <div id="dashboard-content">
-                    <h3 style="margin-bottom: 1rem; color: #333;">System Status</h3>
-                    <p style="margin-bottom: 2rem; color: #666;">All systems are running smoothly. Monitor the overall
-                        health of your waste management system.</p>
-
-                    <div
-                        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
-                        <div
-                            style="padding: 1.5rem; background: linear-gradient(135deg, rgba(76, 175, 80, 0.1), rgba(76, 175, 80, 0.05)); border-radius: 15px; border-left: 4px solid #4CAF50;">
-                            <strong style="color: #333;">Collection Rate</strong><br>
-                            <span style="font-size: 2rem; color: #4CAF50; font-weight: bold;">
-                                </span>
-                        </div>
-                        <div
-                            style="padding: 1.5rem; background: linear-gradient(135deg, rgba(33, 150, 243, 0.1), rgba(33, 150, 243, 0.05)); border-radius: 15px; border-left: 4px solid #2196F3;">
-                            <strong style="color: #333;">Customer Satisfaction</strong><br>
-                            <span style="font-size: 2rem; color: #2196F3; font-weight: bold;">
-                                </span>
-                        </div>
-                        <div
-                            style="padding: 1.5rem; background: linear-gradient(135deg, rgba(255, 193, 7, 0.1), rgba(255, 193, 7, 0.05)); border-radius: 15px; border-left: 4px solid #FFC107;">
-                            <strong style="color: #333;">Recycling Rate</strong><br>
-                            <span style="font-size: 2rem; color: #FFC107; font-weight: bold;">
-                                </span>
-                        </div>
-                    </div>
-
-                    <div style="margin-top: 3rem;">
-                        <h4 style="margin-bottom: 1rem; color: #333;">Quick Actions</h4>
-                        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                            <!--<a href="#" class="btn"><i class="fas fa-route"></i> Manage Routes</a>-->
-                            <a href="#" class="btn"><i class="fas fa-chart-bar"></i> View Reports</a>
-
-                            <!-- Action Buttons -->
-                            <div class="action-buttons">
-                                <a href="{% url 'super_admin_dashboard:super_admin_dashboard' %}" class="action-button">
-                                    <i class="fas fa-home"></i> Back to Home
-                                </a>
-                                <a href="#" class="action-button secondary" onclick="openAboutUsModal()">
-                                    <i class="fas fa-info-circle"></i> About Us
-                                </a>
-                                <a href="#" class="action-button secondary" onclick="shareServices()">
-                                    <i class="fas fa-share-alt"></i> Share Services
-                                </a>
-                            </div>
-                        </div>
-                    </div>
+        <!-- Order Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-list"></i>
                 </div>
+                <div class="stat-value">{{ total_orders }}</div>
+                <div class="stat-label">Total Orders</div>
             </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-value">{{ pending_orders }}</div>
+                <div class="stat-label">Pending Orders</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-sync"></i>
+                </div>
+                <div class="stat-value">{{ confirmed_orders }}</div>
+                <div class="stat-label">In Progress</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-value">{{ completed_orders }}</div>
+                <div class="stat-label">Completed</div>
+            </div>
+        </div>
+
+        <!-- Recent Orders Table -->
+        <div class="content-area" style="margin-top: 2rem;">
+            <div class="content-header">
+                <h3 class="content-title">Recent Orders</h3>
+            </div>
+            <div style="overflow-x:auto;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background: var(--light);">
+                            <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #ddd;">Customer</th>
+                            <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #ddd;">Waste Type</th>
+                            <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #ddd;">Bags</th>
+                            <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #ddd;">Status</th>
+                            <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #ddd;">Scheduled Date</th>
+                            <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #ddd;">Assigned Collector</th>
+                            <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #ddd;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 1rem;">{{ order.customer_name }}<br><small>{{ order.customer_phone }}</small></td>
+                            <td style="padding: 1rem;">{{ order.waste_type }}</td>
+                            <td style="padding: 1rem;">{{ order.bags }}</td>
+                            <td style="padding: 1rem;">
+                                <span class="status-badge" data-status="{{ order.status }}">
+                                    {{ order.status }}
+                                </span>
+                            </td>
+                            <td style="padding: 1rem;">{{ order.scheduled_date }}</td>
+                            <td style="padding: 1rem;">{{ order.assigned_collector }}</td>
+                            <td style="padding: 1rem;">
+                                <div class="action-buttons" style="gap: 0.5rem;">
+                                    <button class="action-btn btn-download" onclick="openStatusModal({{ order.id }})" title="Update Status">
+                                        <i class="fas fa-sync"></i>
+                                    </button>
+                                    <button class="action-btn" style="background: #2196F3; color: white;" onclick="openRescheduleModal({{ order.id }})" title="Reschedule">
+                                        <i class="fas fa-calendar-alt"></i>
+                                    </button>
+                                    <button class="action-btn" style="background: #FF9800; color: white;" onclick="openAssignModal({{ order.id }})" title="Assign Collector">
+                                        <i class="fas fa-user-plus"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" style="padding: 2rem; text-align: center; color: #666;">No orders found</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+       
+    <!-- Modals -->
+    <!-- Assign Collector Modal -->
+    <div id="assignModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Assign Collector</h3>
+                <span class="close" onclick="closeModal('assignModal')">&times;</span>
+            </div>
+            <form id="assignForm">
+                <input type="hidden" id="assignOrderId" name="order_id">
+                <input type="hidden" name="action" value="assign_collector">
+                <div class="form-group">
+                    <label for="collectorSelect">Select Collector:</label>
+                    <select id="collectorSelect" name="collector_id" required>
+                        <option value="">Choose a collector</option>
+                        {% for collector in collectors %}
+                        <option value="{{ collector.id }}">{{ collector.get_full_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn" style="background: #6c757d;" onclick="closeModal('assignModal')">Cancel</button>
+                    <button type="submit" class="btn" style="background: #4CAF50;">Assign Collector</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Update Status Modal -->
+    <div id="statusModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Update Order Status</h3>
+                <span class="close" onclick="closeModal('statusModal')">&times;</span>
+            </div>
+            <form id="statusForm">
+                <input type="hidden" id="statusOrderId" name="order_id">
+                <input type="hidden" name="action" value="update_status">
+                <div class="form-group">
+                    <label for="statusSelect">New Status:</label>
+                    <select id="statusSelect" name="status" required>
+                        <option value="">Select status</option>
+                        <option value="pending">Pending</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="completed">Completed</option>
+                        <option value="collected">Collected</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn" style="background: #6c757d;" onclick="closeModal('statusModal')">Cancel</button>
+                    <button type="submit" class="btn" style="background: #2196F3;">Update Status</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Reschedule Modal -->
+    <div id="rescheduleModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Reschedule Order</h3>
+                <span class="close" onclick="closeModal('rescheduleModal')">&times;</span>
+            </div>
+            <form id="rescheduleForm">
+                <input type="hidden" id="rescheduleOrderId" name="order_id">
+                <input type="hidden" name="action" value="reschedule">
+                <div class="form-group">
+                    <label for="newDate">New Scheduled Date:</label>
+                    <input type="date" id="newDate" name="new_date" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn" style="background: #6c757d;" onclick="closeModal('rescheduleModal')">Cancel</button>
+                    <button type="submit" class="btn" style="background: #FF9800;">Reschedule</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -1126,6 +1439,516 @@
                 closeSidebar();
             }
         }
+
+        // Report Generation Functions
+        function generateReport(reportType) {
+            // Show loading state
+            const buttons = document.querySelectorAll('.report-btn');
+            let targetButton = null;
+            buttons.forEach(btn => {
+                if (btn.onclick && btn.onclick.toString().includes(reportType)) {
+                    targetButton = btn;
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+                    btn.disabled = true;
+                }
+            });
+
+            // Make AJAX call to generate report
+            fetch('/super_admin_dashboard/reports/generate-report/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken()
+                },
+                body: JSON.stringify({report_type: reportType})
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    showMessage(`${data.report_name} generated successfully!`, 'success');
+                    // Add to report history
+                    addToReportHistory(data.report_data);
+                } else {
+                    showMessage(`Error: ${data.error || 'Failed to generate report'}`, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error generating report:', error);
+                showMessage(`Error: ${error.message}`, 'error');
+            })
+            .finally(() => {
+                // Reset button state
+                if (targetButton) {
+                    const buttonTexts = {
+                        'daily_collection': '<i class="fas fa-calendar-day"></i> Daily Collection Report',
+                        'weekly_collection': '<i class="fas fa-calendar-week"></i> Weekly Collection Report',
+                        'monthly_collection': '<i class="fas fa-calendar-alt"></i> Monthly Collection Report',
+                        'customer_summary': '<i class="fas fa-user-friends"></i> Customer Summary Report',
+                        'active_customers': '<i class="fas fa-user-check"></i> Active Customers Report',
+                        'customer_growth': '<i class="fas fa-chart-line"></i> Customer Growth Report',
+                        'revenue_summary': '<i class="fas fa-file-invoice-dollar"></i> Revenue Summary Report',
+                        'payment_analysis': '<i class="fas fa-credit-card"></i> Payment Analysis Report',
+                        'outstanding_payments': '<i class="fas fa-exclamation-circle"></i> Outstanding Payments Report',
+                        'collector_performance': '<i class="fas fa-truck"></i> Collector Performance Report',
+                        'efficiency_metrics': '<i class="fas fa-percentage"></i> Efficiency Metrics Report',
+                        'service_level': '<i class="fas fa-star"></i> Service Level Report'
+                    };
+                    targetButton.innerHTML = buttonTexts[reportType] || 'Generate Report';
+                    targetButton.disabled = false;
+                }
+            });
+        }
+
+        function getCSRFToken() {
+            // Try multiple ways to get CSRF token
+            let csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+
+            // If not found, try meta tag
+            if (!csrfToken) {
+                csrfToken = document.querySelector('meta[name=csrf-token]')?.content || '';
+            }
+
+            // If still not found, try cookie
+            if (!csrfToken) {
+                const cookies = document.cookie.split(';');
+                for (let cookie of cookies) {
+                    const [name, value] = cookie.trim().split('=');
+                    if (name === 'csrftoken') {
+                        csrfToken = value;
+                        break;
+                    }
+                }
+            }
+
+            if (!csrfToken) {
+                console.error('CSRF token not found! This will cause the "Unexpected token <" error');
+                // Fallback - try to get from Django's default cookie name
+                console.log('Available cookies:', document.cookie);
+            }
+
+            console.log('CSRF Token:', csrfToken ? 'FOUND' : 'NOT FOUND');
+            return csrfToken;
+        }
+
+        function openCustomReportModal(reportCategory) {
+            showMessage(`Opening custom ${reportCategory} report configuration...`, 'info');
+            // In a real implementation, this would open a modal with custom report options
+            alert(`Custom ${reportCategory} report configuration would open here.`);
+        }
+
+        function showMessage(message, type = 'info') {
+            // Create message element
+            const messageEl = document.createElement('div');
+            messageEl.className = `message-popup message-${type}`;
+            messageEl.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+
+            // Style message
+            messageEl.style.cssText = `
+                position: fixed;
+                top: 100px;
+                right: 20px;
+                padding: 1rem 1.5rem;
+                border-radius: 8px;
+                color: white;
+                font-weight: 500;
+                z-index: 10001;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                transform: translateX(100%);
+                transition: transform 0.3s ease;
+                ${type === 'success' ? 'background: #28a745;' : type === 'error' ? 'background: #dc3545;' : 'background: #17a2b8;'}
+            `;
+
+            // Add to document
+            document.body.appendChild(messageEl);
+
+            // Animate in
+            setTimeout(() => {
+                messageEl.style.transform = 'translateX(0)';
+            }, 10);
+
+            // Remove after 3 seconds
+            setTimeout(() => {
+                messageEl.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    if (messageEl.parentNode) {
+                        messageEl.parentNode.removeChild(messageEl);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        function addToReportHistory(reportData) {
+            const historyBody = document.getElementById('reportHistoryBody');
+
+            // Remove the "no reports" message if it exists
+            const noReportsRow = historyBody.querySelector('tr td[colspan="5"]');
+            if (noReportsRow) {
+                historyBody.innerHTML = '';
+            }
+
+            // Create new row
+            const row = document.createElement('tr');
+            const now = new Date();
+            const formattedDate = now.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            row.innerHTML = `
+                <td>${reportData.report_name || 'Generated Report'}</td>
+                <td>${reportData.report_type?.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'Unknown'}</td>
+                <td>${formattedDate}</td>
+                <td><span class="status-badge" data-status="Generated">Generated</span></td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="action-btn btn-download" onclick="downloadReport('${reportData.report_type}', 'pdf')">
+                            <i class="fas fa-download"></i>
+                        </button>
+                        <button class="action-btn btn-delete" onclick="deleteReport(this)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            `;
+
+            historyBody.insertBefore(row, historyBody.firstChild);
+        }
+
+        function downloadReport(reportType, format) {
+            showMessage(`Downloading ${format.toUpperCase()} report...`, 'info');
+
+            // Construct the download URL
+            const downloadUrl = `/super_admin_dashboard/reports/download-report/0/?type=${reportType}&format=${format}`;
+
+            // Create a temporary link and trigger download
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.target = '_blank';
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            showMessage(`${format.toUpperCase()} report download started`, 'success');
+        }
+
+        function deleteReport(button) {
+            if (confirm('Are you sure you want to delete this report?')) {
+                const row = button.closest('tr');
+                row.remove();
+
+                // Show message
+                showMessage('Report deleted successfully', 'success');
+
+                // Check if no reports left
+                const historyBody = document.getElementById('reportHistoryBody');
+                if (historyBody.children.length === 0) {
+                    historyBody.innerHTML = `
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 2rem; color: #666;">
+                                No reports generated yet. Generate your first report above.
+                            </td>
+                        </tr>
+                    `;
+                }
+            }
+        }
+
+        // Modal Functions
+        function openAssignModal(orderId) {
+            console.log('Opening Assign Modal for order:', orderId);
+            const assignOrderId = document.getElementById('assignOrderId');
+            const assignModal = document.getElementById('assignModal');
+
+            if (assignOrderId && assignModal) {
+                assignOrderId.value = orderId;
+                assignModal.style.display = 'block';
+                console.log('Assign modal opened successfully');
+            } else {
+                console.error('Assign modal elements not found!');
+            }
+        }
+
+        function openStatusModal(orderId) {
+            console.log('Opening Status Modal for order:', orderId);
+            const statusOrderId = document.getElementById('statusOrderId');
+            const statusModal = document.getElementById('statusModal');
+
+            if (statusOrderId && statusModal) {
+                statusOrderId.value = orderId;
+                statusModal.style.display = 'block';
+                console.log('Status modal opened successfully');
+            } else {
+                console.error('Status modal elements not found!');
+            }
+        }
+
+        function openRescheduleModal(orderId) {
+            console.log('Opening Reschedule Modal for order:', orderId);
+            const rescheduleOrderId = document.getElementById('rescheduleOrderId');
+            const rescheduleModal = document.getElementById('rescheduleModal');
+            const newDate = document.getElementById('newDate');
+
+            if (rescheduleOrderId && rescheduleModal && newDate) {
+                rescheduleOrderId.value = orderId;
+                rescheduleModal.style.display = 'block';
+                // Set min date to today
+                const today = new Date().toISOString().split('T')[0];
+                newDate.min = today;
+                console.log('Reschedule modal opened successfully');
+            } else {
+                console.error('Reschedule modal elements not found!');
+            }
+        }
+
+        function closeModal(modalId) {
+            console.log('Closing modal:', modalId);
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        }
+
+        // Form submissions - Wait for DOM to be fully loaded
+        // Test function to verify button clicks
+        function testButtonClick(buttonName) {
+            console.log('Button clicked:', buttonName);
+            alert('Button clicked: ' + buttonName + ' - Check console for details');
+        }
+
+        // Debug function to check if functions exist
+        function debugFunctions() {
+            console.log('=== Debug Info ===');
+            console.log('openAssignModal exists:', typeof openAssignModal);
+            console.log('openStatusModal exists:', typeof openStatusModal);
+            console.log('openRescheduleModal exists:', typeof openRescheduleModal);
+            console.log('closeModal exists:', typeof closeModal);
+            console.log('getCSRFToken exists:', typeof getCSRFToken);
+
+            // Check if modal elements exist
+            console.log('assignModal exists:', !!document.getElementById('assignModal'));
+            console.log('statusModal exists:', !!document.getElementById('statusModal'));
+            console.log('rescheduleModal exists:', !!document.getElementById('rescheduleModal'));
+
+            // Check CSRF token
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+            console.log('CSRF token element exists:', !!csrfToken);
+            console.log('CSRF token value:', csrfToken ? csrfToken.value : 'NOT FOUND');
+
+            alert('Debug info logged to console - please check browser developer tools');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set min date for reschedule input
+            const rescheduleDateInput = document.getElementById('newDate');
+            if (rescheduleDateInput) {
+                const today = new Date().toISOString().split('T')[0];
+                rescheduleDateInput.min = today;
+            }
+
+            // Assign Form Submission
+            const assignForm = document.getElementById('assignForm');
+            if (assignForm) {
+                assignForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const orderId = document.getElementById('assignOrderId').value;
+                    const collectorId = document.getElementById('collectorSelect').value;
+
+                    if (collectorId) {
+                        const submitBtn = this.querySelector('button[type="submit"]');
+                        const originalText = submitBtn.innerHTML;
+                        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Assigning...';
+                        submitBtn.disabled = true;
+
+                        const url = `{% url 'super_admin_dashboard:manage_order' 0 %}`.replace('0', orderId);
+                        console.log('Making request to:', url);
+
+                        fetch(url, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                                'X-CSRFToken': getCSRFToken()
+                            },
+                            body: `action=assign_collector&collector_id=${collectorId}`
+                        })
+                        .then(response => {
+                            // Check if response is OK
+                            if (!response.ok) {
+                                console.error('Response not OK:', response.status, response.statusText);
+                                return response.text().then(text => {
+                                    console.error('Error response body:', text);
+                                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                                });
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.success) {
+                                showMessage(`Order assigned to collector successfully!`, 'success');
+                                closeModal('assignModal');
+                                location.reload();
+                            } else {
+                                showMessage('Error: ' + (data.error || 'Failed to assign collector'), 'error');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            showMessage('Error: ' + error.message, 'error');
+                        })
+                        .finally(() => {
+                            submitBtn.innerHTML = originalText;
+                            submitBtn.disabled = false;
+                        });
+                    } else {
+                        showMessage('Please select a collector', 'error');
+                    }
+                });
+            }
+
+            // Status Form Submission
+            const statusForm = document.getElementById('statusForm');
+            if (statusForm) {
+                statusForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const orderId = document.getElementById('statusOrderId').value;
+                    const newStatus = document.getElementById('statusSelect').value;
+
+                    if (newStatus) {
+                        const submitBtn = this.querySelector('button[type="submit"]');
+                        const originalText = submitBtn.innerHTML;
+                        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+                        submitBtn.disabled = true;
+
+                        const url = `{% url 'super_admin_dashboard:manage_order' 0 %}`.replace('0', orderId);
+                        console.log('Making request to:', url);
+
+                        fetch(url, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                                'X-CSRFToken': getCSRFToken()
+                            },
+                            body: `action=update_status&status=${newStatus}`
+                        })
+                        .then(response => {
+                            // Check if response is OK
+                            if (!response.ok) {
+                                console.error('Response not OK:', response.status, response.statusText);
+                                return response.text().then(text => {
+                                    console.error('Error response body:', text);
+                                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                                });
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.success) {
+                                showMessage(`Order status updated to ${newStatus}!`, 'success');
+                                closeModal('statusModal');
+                                location.reload();
+                            } else {
+                                showMessage('Error: ' + (data.error || 'Failed to update status'), 'error');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            showMessage('Error: ' + error.message, 'error');
+                        })
+                        .finally(() => {
+                            submitBtn.innerHTML = originalText;
+                            submitBtn.disabled = false;
+                        });
+                    } else {
+                        showMessage('Please select a status', 'error');
+                    }
+                });
+            }
+
+            // Reschedule Form Submission
+            const rescheduleForm = document.getElementById('rescheduleForm');
+            if (rescheduleForm) {
+                rescheduleForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const orderId = document.getElementById('rescheduleOrderId').value;
+                    const newDate = document.getElementById('newDate').value;
+
+                    if (newDate) {
+                        const submitBtn = this.querySelector('button[type="submit"]');
+                        const originalText = submitBtn.innerHTML;
+                        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Rescheduling...';
+                        submitBtn.disabled = true;
+
+                        const url = `{% url 'super_admin_dashboard:manage_order' 0 %}`.replace('0', orderId);
+                        console.log('Making request to:', url);
+
+                        fetch(url, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                                'X-CSRFToken': getCSRFToken()
+                            },
+                            body: `action=reschedule&new_date=${newDate}`
+                        })
+                        .then(response => {
+                            // Check if response is OK
+                            if (!response.ok) {
+                                console.error('Response not OK:', response.status, response.statusText);
+                                return response.text().then(text => {
+                                    console.error('Error response body:', text);
+                                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                                });
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.success) {
+                                showMessage(`Order rescheduled to ${newDate}!`, 'success');
+                                closeModal('rescheduleModal');
+                                location.reload();
+                            } else {
+                                showMessage('Error: ' + (data.error || 'Failed to reschedule'), 'error');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            showMessage('Error: ' + error.message, 'error');
+                        })
+                        .finally(() => {
+                            submitBtn.innerHTML = originalText;
+                            submitBtn.disabled = false;
+                        });
+                    } else {
+                        showMessage('Please select a date', 'error');
+                    }
+                });
+            }
+        });
+
+      
+
+       
+
+        
 
         // Close modal on outside click
         window.onclick = function (event) {
