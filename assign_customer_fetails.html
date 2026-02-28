@@ -741,6 +741,7 @@
                                 <table border="1">
                                     <thead>
                                         <tr>
+                                            <th>Customer ID </th>
                                             <th>Customer Name</th>
                                             <th>Action</th>
                                             <th>Local Body</th>
@@ -760,6 +761,7 @@
                                     <tbody>
                                         {% for info in customers %}
                                             <tr class="fade-in collection-ready">
+                                                <td>SUG{{ info.user.id }}</td>
                                                 <td>{{ info.user.get_full_name }}</td>
                                                 <td>
                                                     <form action="{% url 'waste_collector:waste_collect_create' %}" method="get">
@@ -799,7 +801,7 @@
                                                 <td>{{ info.pincode }}</td>
                                             </tr>
                                         {% empty %}
-                                            <tr><td colspan="14">No assignments for this local body.</td></tr>
+                                            <tr><td colspan="15">No assignments for this local body.</td></tr>
                                         {% endfor %}
                                     </tbody>
                                 </table>
@@ -809,6 +811,7 @@
                         <table border="1">
                             <thead>
                                 <tr>
+                                    <th>Customer ID </th>
                                     <th>Customer Name</th>
                                     <th>Action</th>
                                     <th>Local Body</th>
@@ -828,6 +831,7 @@
                             <tbody>
                                 {% for info in assigned_customers %}
                                     <tr class="fade-in collection-ready">
+                                        <td>SUG{{ info.user.id }}</td>
                                         <td>{{ info.user.get_full_name }}</td>
                                         <td>
                                             <form action="{% url 'waste_collector:waste_collect_create' %}" method="get">
@@ -867,7 +871,7 @@
                                         <td>{{ info.pincode }}</td>
                                     </tr>
                                 {% empty %}
-                                    <tr><td colspan="14">No assignments yet. Check back later for new collection requests!</td></tr>
+                                    <tr><td colspan="15">No assignments yet. Check back later for new collection requests!</td></tr>
                                 {% endfor %}
                             </tbody>
                         </table>
