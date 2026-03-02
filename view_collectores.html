@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waste Collector Users - SuchiGo Admin</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e8f5e8 0%, #e1f3f8 100%);
+            min-height: 100vh;
+            color: #333;
+
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            border-bottom: 1px solid #333;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .navbar-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #666, #999);
+            padding: 4px;
+            transition: transform 0.3s ease;
+        }
+
+        .navbar-logo:hover {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: 1px;
+            background: linear-gradient(135deg, #ffffff, #999999);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .navbar-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .navbar-links a {
+            color: #cccccc;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1rem;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .navbar-links a::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #666, #999);
+            transition: width 0.3s ease;
+        }
+
+        .navbar-links a:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .navbar-links a:hover::before {
+            width: 80%;
+        }
+
+        .navbar-links a.active {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .navbar-links a.active::before {
+            width: 80%;
+        }
+
+        /* Mobile Menu Toggle */
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 4px;
+            cursor: pointer;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .menu-toggle:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .menu-toggle span {
+            width: 25px;
+            height: 3px;
+            background: #ffffff;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .menu-toggle.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .menu-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .menu-toggle.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -6px);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 1rem;
+                flex-wrap: wrap;
+            }
+
+            .menu-toggle {
+                display: flex;
+                order: 3;
+            }
+
+            .navbar-left {
+                flex: 1;
+            }
+
+            .navbar-links {
+                flex-direction: column;
+                width: 100%;
+                max-height: 0;
+                overflow: hidden;
+                gap: 0;
+                order: 4;
+                background: rgba(0, 0, 0, 0.95);
+                margin: 1rem -1rem -1rem;
+                padding: 0 1rem;
+                border-radius: 0 0 12px 12px;
+                transition: max-height 0.3s ease, padding 0.3s ease;
+            }
+
+            .navbar-links.active {
+                max-height: 300px;
+                padding: 1rem;
+                border-top: 1px solid #333;
+            }
+
+            .navbar-links li {
+                width: 100%;
+            }
+
+            .navbar-links a {
+                display: block;
+                width: 100%;
+                padding: 1rem;
+                text-align: center;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            }
+
+            .navbar-links li:last-child a {
+                border-bottom: none;
+            }
+
+            .logo-text {
+                font-size: 1.25rem;
+            }
+
+            .navbar-logo {
+                width: 35px;
+                height: 35px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo-text {
+                font-size: 1.1rem;
+            }
+
+            .navbar-logo {
+                width: 32px;
+                height: 32px;
+            }
+        }
+
+
+
+        .page-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            background: rgba(248, 249, 250, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .page-title {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .page-title h2 {
+            font-size: clamp(1.5rem, 4vw, 2rem);
+            background: linear-gradient(135deg, #4CAF50, #2196F3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0;
+        }
+
+        .page-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #4CAF50, #2196F3);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .back-btn {
+            background: linear-gradient(135deg, #4CAF50, #2196F3);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 10px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            color: white;
+            text-decoration: none;
+        }
+
+        .table-container {
+            background: rgba(248, 249, 250, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1rem;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e9ecef;
+            overflow-x: auto;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid rgba(102, 126, 234, 0.1);
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .table-info {
+            color: #666;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #4CAF50, #2196F3);
+            color: white;
+            border: none;
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            color: white;
+            text-decoration: none;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d, #495057);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #ff9800, #f57c00);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #f44336, #d32f2f);
+        }
+
+        .btn-sm {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+        }
+
+        /* Desktop Table */
+        .desktop-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            display: none;
+        }
+
+        .desktop-table th {
+            background: linear-gradient(135deg, #4CAF50, #2196F3);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .desktop-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #e9ecef;
+            color: #333;
+            transition: background-color 0.2s ease;
+        }
+
+        .desktop-table tr:hover td {
+            background-color: rgba(76, 175, 80, 0.05);
+        }
+
+        .desktop-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Mobile Cards */
+        .mobile-cards {
+            display: none;
+            gap: 1rem;
+        }
+
+        .collector-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e9ecef;
+            transition: transform 0.2s ease;
+        }
+
+        .collector-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .card-content {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .card-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .card-row:last-child {
+            border-bottom: none;
+        }
+
+        .card-label {
+            font-weight: 600;
+            color: #666;
+            min-width: 80px;
+            font-size: 0.9rem;
+        }
+
+        .card-value {
+            flex: 1;
+            color: #333;
+        }
+
+        .collector-info {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .collector-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #ff9800, #f57c00);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .collector-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .collector-username {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .collector-id {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .contact-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .email-link {
+            color: #2196F3;
+            text-decoration: none;
+            transition: color 0.2s ease;
+            word-break: break-all;
+        }
+
+        .email-link:hover {
+            color: #4CAF50;
+        }
+
+        .status-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-block;
+        }
+
+        .status-active {
+            background: rgba(76, 175, 80, 0.1);
+            color: #4CAF50;
+            border: 1px solid rgba(76, 175, 80, 0.3);
+        }
+
+        .status-offline {
+            background: rgba(158, 158, 158, 0.1);
+            color: #9e9e9e;
+            border: 1px solid rgba(158, 158, 158, 0.3);
+        }
+
+        .stats-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(248, 249, 250, 0.95);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e9ecef;
+            text-align: center;
+            transition: transform 0.2s ease;
+            position: relative;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(135deg, #ff9800, #f57c00);
+            border-radius: 12px 12px 0 0;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #ff9800, #f57c00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #666;
+        }
+
+        .no-data i {
+            font-size: 3rem;
+            color: #ccc;
+            margin-bottom: 1rem;
+        }
+
+        .route-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 0.3rem;
+        }
+
+        /* Delete Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 2rem;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        .modal-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-header i {
+            font-size: 3rem;
+            color: #f44336;
+            margin-bottom: 1rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        /* Responsive Design */
+        @media (min-width: 992px) {
+            .desktop-table {
+                display: table;
+            }
+
+            .stats-summary {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @media (max-width: 991px) {
+            .mobile-cards {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .page-header {
+                padding: 1rem;
+            }
+
+            .table-container {
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 0.5rem;
+            }
+
+            .page-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .page-title {
+                justify-content: center;
+                min-width: auto;
+            }
+
+            .table-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .action-buttons {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .btn {
+                flex: 1;
+                justify-content: center;
+                min-width: 120px;
+            }
+
+            .stats-summary {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.5rem;
+            }
+
+            .stat-card {
+                padding: 1rem;
+            }
+
+            .stat-value {
+                font-size: 1.5rem;
+            }
+
+            .collector-card {
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-summary {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .card-actions {
+                flex-direction: column;
+                gap: 0.3rem;
+            }
+
+            .modal-content {
+                margin: 20% auto;
+                padding: 1.5rem;
+            }
+
+            .modal-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="navbar-left">
+            <img src="{% static 'images/logo.png.jpg' %}" alt="SuchiGo Logo" class="navbar-logo">
+            <div class="logo-text">SuchiGo</div>
+        </div>
+        <div class="menu-toggle" id="menuToggle">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <ul class="navbar-links" id="navbarLinks">
+            <li><a href="{% url 'super_admin_dashboard:super_admin_dashboard' %}" data-page="home">Home</a></li>
+            <li><a href="{% url 'super_admin_dashboard:view_collectors' %}" class="active"
+                    data-page="Waste Collector Management">Waste Collector Management</a></li>
+            <li><a href="{% url 'authentication:logout' %}" data-page="logout">Logout</a></li>
+        </ul>
+    </nav>
+    <div class="page-container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="page-title">
+                <div class="page-icon">
+                    <i class="fas fa-truck"></i>
+                </div>
+                <h2>Waste Collector Users</h2>
+            </div>
+            <!--            <a href="{% url 'super_admin_dashboard:super_admin_dashboard' %}" class="back-btn">-->
+            <!--                <i class="fas fa-arrow-left"></i>-->
+            <!--                Back to Dashboard-->
+            <!--            </a>-->
+        </div>
+
+        <!-- Stats Summary -->
+        <div class="stats-summary">
+            <div class="stat-card">
+                <div class="stat-value" id="total-collectors">{{ total_collectors }}</div>
+                <div class="stat-label">Total Collectors</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="active-collectors">0</div>
+                <div class="stat-label">Active Today</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="routes-covered">0</div>
+                <div class="stat-label">Routes Covered</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="collections-today">0</div>
+                <div class="stat-label">Collections Today</div>
+            </div>
+        </div>
+
+        <!-- Table Container -->
+        <div class="table-container">
+            <div class="table-header">
+                <div class="table-info">
+                    <i class="fas fa-truck"></i>
+                    Showing all registered waste collector users
+                </div>
+                <div class="action-buttons">
+                    <a href="{% url 'super_admin_dashboard:user_create' %}" class="btn">
+                        <i class="fas fa-plus"></i>
+                        Add Collector
+                    </a>
+                    <!--<a href="#" class="btn btn-warning">-->
+                    <!--    <i class="fas fa-route"></i>-->
+                    <!--    Assign Routes-->
+                    <!--</a>-->
+                    <a href="{% url 'super_admin_dashboard:export_collectors_csv' %}" class="btn btn-secondary">
+                        <i class="fas fa-download"></i>
+                        Export Data
+                    </a>
+                </div>
+            </div>
+
+            {% if collectors %}
+            <!-- Desktop Table -->
+            <table class="desktop-table">
+                <thead>
+                    <tr>
+                        <th><i class="fas fa-user-hard-hat"></i> Collector Details</th>
+                        <th><i class="fas fa-signature"></i> Full Name</th>
+                        <th><i class="fas fa-envelope"></i> Email</th>
+                        <th><i class="fas fa-phone"></i> Contact</th>
+                        <th><i class="fas fa-info-circle"></i> Status</th>
+                        <th><i class="fas fa-cogs"></i> Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in collectors %}
+                    <tr>
+                        <td>
+                            <div class="collector-info">
+                                <div class="collector-avatar">
+                                    {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
+                                </div>
+                                <div class="collector-details">
+                                    <div class="collector-username">{{ user.username }}</div>
+                                    <div class="collector-id">Collector ID: #WC{{ forloop.counter|stringformat:"03d" }}
+                                    </div>
+                                    <div class="route-info">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        Route {{ forloop.counter|add:10 }}
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <strong>{{ user.first_name }} {{ user.last_name }}</strong>
+                            <div style="font-size: 0.8rem; color: #666; margin-top: 0.2rem;">
+                                <i class="fas fa-calendar"></i>
+                                Joined: {{ user.date_joined|date:"M d, Y"|default:"Recently" }}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="contact-info">
+                                <i class="fas fa-envelope" style="color: #2196F3;"></i>
+                                <a href="mailto:{{ user.email }}" class="email-link">{{ user.email }}</a>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="contact-info">
+                                <i class="fas fa-phone" style="color: #4CAF50;"></i>
+                                <span>{{ user.contact_number|default:"Not provided" }}</span>
+                            </div>
+                            {% if user.contact_number %}
+                            <div style="font-size: 0.8rem; color: #666; margin-top: 0.2rem;">
+                                <i class="fas fa-whatsapp" style="color: #25D366;"></i>
+                                WhatsApp Available
+                            </div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="status-badge {% cycle 'status-active' 'status-active' 'status-offline' %}">
+                                {% cycle 'Active' 'Active' 'Offline' %}
+                            </div>
+                            <div style="font-size: 0.8rem; color: #666; margin-top: 0.3rem;">
+                                <i class="fas fa-clock"></i>
+                                Last seen: {% cycle '2 min ago' '1 hr ago' '1 day ago' %}
+                            </div>
+                        </td>
+                        <td>
+                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                <button class="btn btn-sm" onclick="editCollector('{{ user.id }}')">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-danger btn-sm"
+                                    onclick="deleteCollector('{{ user.id }}', '{{ user.username }}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- Mobile Cards -->
+            <div class="mobile-cards">
+                {% for user in collectors %}
+                <div class="collector-card">
+                    <div class="card-header">
+                        <div class="collector-info">
+                            <div class="collector-avatar">
+                                {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
+                            </div>
+                            <div class="collector-details">
+                                <div class="collector-username">{{ user.username }}</div>
+                                <div class="collector-id">Collector ID: #WC{{ forloop.counter|stringformat:"03d" }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-actions">
+                            <button class="btn btn-sm" onclick="editCollector('{{ user.id }}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-danger btn-sm"
+                                onclick="deleteCollector('{{ user.id }}', '{{ user.username }}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card-content">
+                        <div class="card-row">
+                            <div class="card-label">
+                                <i class="fas fa-user"></i> Name:
+                            </div>
+                            <div class="card-value">
+                                <strong>{{ user.first_name }} {{ user.last_name }}</strong>
+                            </div>
+                        </div>
+
+                        <div class="card-row">
+                            <div class="card-label">
+                                <i class="fas fa-envelope"></i> Email:
+                            </div>
+                            <div class="card-value">
+                                <a href="mailto:{{ user.email }}" class="email-link">{{ user.email }}</a>
+                            </div>
+                        </div>
+
+                        <div class="card-row">
+                            <div class="card-label">
+                                <i class="fas fa-phone"></i> Contact:
+                            </div>
+                            <div class="card-value">
+                                {{ user.contact_number|default:"Not provided" }}
+                                {% if user.contact_number %}
+                                <div style="font-size: 0.8rem; color: #25D366; margin-top: 0.2rem;">
+                                    <i class="fas fa-whatsapp"></i> WhatsApp Available
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="card-row">
+                            <div class="card-label">
+                                <i class="fas fa-map-marker-alt"></i> Route:
+                            </div>
+                            <div class="card-value">
+                                Route {{ forloop.counter|add:10 }}
+                            </div>
+                        </div>
+
+                        <div class="card-row">
+                            <div class="card-label">
+                                <i class="fas fa-info-circle"></i> Status:
+                            </div>
+                            <div class="card-value">
+                                <div class="status-badge {% cycle 'status-active' 'status-active' 'status-offline' %}">
+                                    {% cycle 'Active' 'Active' 'Offline' %}
+                                </div>
+                                <div style="font-size: 0.8rem; color: #666; margin-top: 0.3rem;">
+                                    <i class="fas fa-clock"></i>
+                                    Last seen: {% cycle '2 min ago' '1 hr ago' '1 day ago' %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-row">
+                            <div class="card-label">
+                                <i class="fas fa-calendar"></i> Joined:
+                            </div>
+                            <div class="card-value">
+                                {{ user.date_joined|date:"M d, Y"|default:"Recently" }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="no-data">
+                <i class="fas fa-truck-loading"></i>
+                <h3>No Waste Collectors Found</h3>
+                <p>There are no registered waste collectors in the system yet.</p>
+                <br>
+                <a href="#" class="btn">
+                    <i class="fas fa-plus"></i>
+                    Add First Collector
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h3>Confirm Deletion</h3>
+                <p>Are you sure you want to delete collector <span id="collectorName"></span>?</p>
+                <p style="color: #666; font-size: 0.9rem; margin-top: 0.5rem;">This action cannot be undone.</p>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeDeleteModal()">
+                    <i class="fas fa-times"></i>
+                    Cancel
+                </button>
+                <button class="btn btn-danger" onclick="confirmDelete()">
+                    <i class="fas fa-trash"></i>
+                    Delete Collector
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const menuToggle = document.getElementById('menuToggle');
+        const navbarLinks = document.getElementById('navbarLinks');
+
+        menuToggle.addEventListener('click', () => {
+            menuToggle.classList.toggle('active');
+            navbarLinks.classList.toggle('active');
+        });
+
+        // Close mobile menu when window is resized to desktop view
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) {
+                navbarLinks.classList.remove('active');
+                menuToggle.classList.remove('active');
+            }
+        });
+
+        let collectorToDelete = null;
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const tableRows = document.querySelectorAll('tbody tr, .collector-card');
+            const totalCollectors = tableRows.length;
+
+            // ✅ Only update the other dynamic stats (not total collectors)
+            document.getElementById('active-collectors').textContent = Math.floor(totalCollectors * 0.85);
+            document.getElementById('routes-covered').textContent = Math.min(totalCollectors, 15);
+            document.getElementById('collections-today').textContent = Math.floor(totalCollectors * 12);
+
+            // Animate stat cards
+            const statCards = document.querySelectorAll('.stat-card');
+            statCards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(20px)';
+                    card.style.transition = 'all 0.5s ease';
+
+                    setTimeout(() => {
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, 100);
+                }, index * 100);
+            });
+        });
+
+        // Delete collector functions remain the same
+        function deleteCollector(collectorId, collectorName) {
+            collectorToDelete = collectorId;
+            document.getElementById('collectorName').textContent = collectorName;
+            document.getElementById('deleteModal').style.display = 'block';
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').style.display = 'none';
+            collectorToDelete = null;
+        }
+
+        function confirmDelete() {
+            if (collectorToDelete) {
+                alert(`Collector ${collectorToDelete} would be deleted from the system.`);
+                closeDeleteModal();
+            }
+        }
+
+        function editCollector(collectorId) {
+            alert(`Edit collector ${collectorId} functionality would be implemented here.`);
+        }
+
+        window.onclick = function (event) {
+            const modal = document.getElementById('deleteModal');
+            if (event.target == modal) {
+                closeDeleteModal();
+            }
+        }
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                closeDeleteModal();
+            }
+        });
+
+    </script>
+</body>
+
+</html>
